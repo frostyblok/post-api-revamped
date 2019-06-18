@@ -4,6 +4,8 @@
 
 #### How should this be manually tested?
 
-#### What are the relevant pivotal tracker stories?
+#### What are the relevant issue numbers?
+
+#### Any background context?
 
 #### Screenshots
