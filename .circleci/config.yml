@@ -1,0 +1,103 @@
+
+default: &defaults
+  docker:
+    - image: circleci/ruby:2.6.1-node-browsers
+      environment:
+        PGHOST: localhost
+        PGUSER: postgres
+        RAILS_ENV: test
+        CC_TEST_REPORTER_ID: 2ec4380bacc59a1927efa22944f67ed4edd34608fe0f4e1c243071733bb9f4bd
+    - image: postgres:9.5
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_DB: post-api_test
+        POSTGRES_PASSWORD: ""
+
+  working_directory: ~/post-api_test
+
+# Restore Cached Dependencies
+cmd_restore_cache: &cmd_restore_cache
+  restore_cache:
+      keys:
+      - post-api_test-{{ checksum "Gemfile.lock" }}
+
+# Bundle install dependencies
+cmd_install_dependencies: &cmd_install_dependencies
+  run:
+    name: Install dependencies
+    command: |
+      echo 'export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")' >> $BASH_ENV
+      source $BASH_ENV
+      gem install bundler
+      bundle install --path vendor/bundle
+
+# Cache Dependencies
+cmd_save_cache: &cmd_save_cache
+  save_cache:
+    key: post-api_test-{{ checksum "Gemfile.lock" }}
+    paths:
+      - vendor/bundle
+
+# Wait for DB
+cmd_wait_for_postgres: &cmd_wait_for_postgres
+  run:
+    name: Waiting for Postgres to be ready
+    command: |
+      dockerize -wait tcp://localhost:5432 -timeout 1m
+
+cmd_attach_workspace: &cmd_attach_workspace
+  attach_workspace:
+    at: ~/post-api_test
+
+cmd_download_cc_test_reporter: &cmd_download_cc_test_reporter
+  run:
+    name:  Download cc-test-reporter
+    command: |
+      mkdir -p tmp/
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
+      chmod +x /tmp/cc-test-reporter
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - *cmd_restore_cache
+      - *cmd_install_dependencies
+      - *cmd_save_cache
+      - *cmd_wait_for_postgres
+      - run:
+          name: Database setup
+          command: |
+             bundle exec rake db:drop
+             bundle exec rake db:create
+             bundle exec rake db:migrate
+             bundle exec rake db:schema:load --trace
+
+  test_and_report:
+    <<: *defaults
+    steps:
+      - checkout
+      - *cmd_restore_cache
+      - *cmd_install_dependencies
+      - *cmd_save_cache
+      - *cmd_wait_for_postgres
+      - *cmd_download_cc_test_reporter
+
+      - run:
+          name: Run tests
+          command: |
+            /tmp/cc-test-reporter before-build
+            bundle exec rspec
+            /tmp/cc-test-reporter format-coverage -t simplecov -o tmp/codeclimate.backend.json coverage/*.json
+            /tmp/cc-test-reporter upload-coverage -i tmp/codeclimate.backend.json
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test_and_report:
+          requires:
+            - build
