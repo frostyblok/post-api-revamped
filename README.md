@@ -4,25 +4,25 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/d350c17466ac0665c78d/maintainability)](https://codeclimate.com/github/frostyblok/post-api-revamped/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d350c17466ac0665c78d/test_coverage)](https://codeclimate.com/github/frostyblok/post-api-revamped/test_coverage)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Post-API
+This is a simple project aimed at having all posts from several social media platforms in one centralized location. A user can be able to view all their posts including comments, likes, shares. This is the API built using Ruby on Rails.
 
-Things you may want to cover:
+## Ruby version
 
-* Ruby version
+- 2.6.0
 
-* System dependencies
+## Configuration
 
-* Configuration
+*Run the following commands:*
 
-* Database creation
+- git clone https://github.com/wrotich/hackernews-clone.git
 
-* Database initialization
+- bundle install
 
-* How to run the test suite
+- rails db:create
 
-* Services (job queues, cache servers, search engines, etc.)
+- rails db:migrate
 
-* Deployment instructions
+- rails s
 
-* ...
+You can query several endpoints using postman.
