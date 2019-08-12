@@ -12,4 +12,20 @@ AllCops:
     - 'micro-shared/**/*'
     - 'Gemfile'
     - 'Gemfile.lock'
-    
+
+Style/GuardClause:
+  Description: Check for conditionals that can be replaced with guard clauses
+  StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-nested-conditionals
+  Enabled: false
+
+Style/Documentation:
+  Description: 'Document classes and non-namespace modules.'
+  Enabled: false
+
+Metrics/BlockLength:
+  Description: Increase block length "Block has too many lines"
+  CountComments: false
+  Max: 50
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

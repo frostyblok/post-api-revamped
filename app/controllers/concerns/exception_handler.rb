@@ -1,20 +1,21 @@
 module ExceptionHandler
-	extend ActiveSupport::Concern
+  extend ActiveSupport::Concern
 
-	class AuthenticationError < StandardError; end
+  class AuthenticationError < StandardError; end
+  class InvalidToken < StandardError; end
 
-	included do
-		rescue_from ExceptionHandler::AuthenticationError, with: :unauthorized
-		rescue_from ActiveRecord::RecordInvalid, with: :unprocessable
-	end
+  included do
+    rescue_from ExceptionHandler::AuthenticationError, with: :unauthorized
+    rescue_from ActiveRecord::RecordInvalid, with: :unprocessable_entity
+  end
 
-	private
+  private
 
-	def unauthorized(e)
-		render json: e.message, status: 401
-	end
+  def unauthorized(entity)
+    render json: entity.message, status: 401
+  end
 
-	def unprocessable(e)
-		render json: e.message, status: 422
-	end
+  def unprocessable_entity(entity)
+    render json: entity.message, status: 422
+  end
 end

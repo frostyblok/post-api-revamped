@@ -6,11 +6,9 @@ engines:
     exclude_paths:
       - 'vendor/'
       - 'db/'
-
 exclude_paths:
-  - 'public/assets/'
-  - 'db/'
-
+  - 'spec/'
+  
 ratings:
   paths:
     - 'app/**/*'
