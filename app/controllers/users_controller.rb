@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  skip_before_action :authorize_request, only: %i[signup login]
+  skip_before_action :authorize_request,
+                     only: %i[signup login social_session_create]
 
   def signup
     user = User.create!(user_params)
@@ -14,6 +15,13 @@ class UsersController < ApplicationController
     auth_token = AuthenticateUser.new(auth_params[:email],
                                       auth_params[:password]).call
     json_response(message: 'Login successful!', auth_token: auth_token)
+  end
+
+  def social_session_create
+    @user = User.find_or_create_from_auth_hash(env['omniauth.auth'])
+    self.current_user = @user
+    token = JsonWebToken.encode(user_id: @user.id)
+    json_response(message: 'Login successful!', auth_token: token)
   end
 
   private
